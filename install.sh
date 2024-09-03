@@ -1,5 +1,15 @@
 #!/bin/bash
 
+echo ""
+echo "Join: https://t.me/airdrop_node"
+read -p "Have you join t.me/airdrop_node on tele? (y/Y to proceed): " JOINED
+
+if [[ ! "$JOINED" =~ ^[yY]$ ]]; then
+    echo ""
+    echo "Please join t.me/airdrop_node on tele before proceeding."
+    exit 1
+fi
+
 cd $HOME
 sudo apt -q update
 sudo apt -qy upgrade
