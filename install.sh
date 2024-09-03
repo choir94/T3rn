@@ -67,5 +67,5 @@ echo
 echo "Starting the Executor..."
 ./executor
 
-echo "Setup Sukses bro! The Executor is now running."
+echo "Setup Sukses bang! Running succes."
 echo -e "${BOLD_PINK}Join airdrop node t.me/airdrop_node on tele${RESET_COLOR}"
