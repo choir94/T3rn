@@ -13,7 +13,6 @@ fi
 cd $HOME
 sudo apt -q update
 sudo apt -qy upgrade
-rm install.sh
 
 EXECUTOR_URL="https://github.com/t3rn/executor-release/releases/download/v0.21.0/executor-linux-v0.21.0.tar.gz"
 EXECUTOR_FILE="executor-linux-v0.21.0.tar.gz"
