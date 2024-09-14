@@ -12,11 +12,9 @@ print_intro() {
   figlet -f /usr/share/figlet/starwars.flf "T3Rn B0T"
   echo -e "\033[0m"
 
-  echo -e "\033[92m Launching T3Rn Node Farmer\033[0m"   # Green color for the description
-  echo -e "\033[96m Developed by: Airdropnode\033[0m"  # Cyan color for the creator
-  echo -e "\033[95m🔍 Booting up T3Rn B0T...\033[0m"  # Magenta color for the initializing message
+
   echo "════════════════════════════════════════════════════════════"
-  echo "║       Stay connected for updates and assistance:         ║"
+  echo "║       Update Informasi Node Join ke telegram:         ║"
   echo "║                                                          ║"
   echo "║                                                          ║"
   echo "║     Telegram:                                            ║"
