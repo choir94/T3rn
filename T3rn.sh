@@ -9,14 +9,12 @@ print_intro() {
   fi
 
   echo -e "\033[94m"
-  figlet -f /usr/share/figlet/starwars.flf "T3Rn B0T"
+  figlet -f /usr/share/figlet/starwars.flf "T3Rn Executor"
   echo -e "\033[0m"
 
 
   echo "════════════════════════════════════════════════════════════"
-  echo "║       Update Informasi Node Join ke telegram:         ║"
-  echo "║                                                          ║"
-  echo "║                                                          ║"
+  echo "║     Update Informasi Node Join ke telegram:         ║"
   echo "║     Telegram:                                            ║"
   echo "║     - https://t.me/airdrop_node                     ║"
   echo "╚════════════════════════════════════════════════════════════"
@@ -40,8 +38,8 @@ sudo apt -q update
 sudo apt -qy upgrade
 
 # Ensure the URL and the file version match
-EXECUTOR_URL="https://github.com/t3rn/executor-release/releases/download/v0.21.0/executor-linux-v0.21.0.tar.gz"
-EXECUTOR_FILE="executor-linux-v0.21.0.tar.gz"
+EXECUTOR_URL="https://github.com/t3rn/executor-release/releases/download/v0.21.1/executor-linux-v0.21.1.tar.gz"
+EXECUTOR_FILE="executor-linux-v0.21.1.tar.gz"
 
 echo "Retrieving the Executor binary from $EXECUTOR_URL..."
 curl -L -o $EXECUTOR_FILE $EXECUTOR_URL
