@@ -104,5 +104,5 @@ echo
 
 echo "Launching the Executor..."
 ./executor
-echo "Done bang!"
-echo -e "${BOLD_PINK} Join airdrop node t.me/airdrop_node ${RESET_COLOR}"
+echo -e "${BOLD_PINK} Join airdrop node https://t.me/airdrop_node ${RESET_COLOR}"
+
