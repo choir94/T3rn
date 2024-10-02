@@ -11,6 +11,7 @@ if [[ ! "$JOINED" =~ ^[yY]$ ]]; then
 fi
 
 cd $HOME
+rm -rf executor
 sudo apt -q update
 sudo apt -qy upgrade
 
