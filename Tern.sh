@@ -18,17 +18,10 @@ sudo apt -qy upgrade
 # Executor version
 EXECUTOR_VERSION="v0.21.5"
 EXECUTOR_URL="https://github.com/t3rn/executor-release/releases/download/${EXECUTOR_VERSION}/executor-linux-${EXECUTOR_VERSION}.tar.gz"
-CHECKSUM_URL="https://github.com/t3rn/executor-release/releases/download/${EXECUTOR_VERSION}/executor-linux-${EXECUTOR_VERSION}.tar.gz.sha256"
 
 # Step 1: Download Executor Binary
 echo "Downloading Executor Binary..."
 wget $EXECUTOR_URL -O executor.tar.gz
-
-# Step 2: Optional: Verify checksum
-echo "Downloading checksum file..."
-wget $CHECKSUM_URL -O executor.tar.gz.sha256
-echo "Verifying checksum..."
-sha256sum -c executor.tar.gz.sha256 || { echo "Checksum verification failed!"; exit 1; }
 
 # Step 3: Extract Executor Binary
 echo "Extracting Executor Binary..."
