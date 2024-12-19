@@ -33,6 +33,19 @@ print_info "============================================="
 print_info "       🚀 Script dari Airdrop Node"
 print_info "=============================================\n"
 
+# Cek jika direktori executor ada dan hapus jika ada
+if [ -d "executor" ]; then
+    print_warning "🔴 Direktori 'executor' ditemukan, menghapusnya terlebih dahulu..."
+    rm -r executor
+    if [ $? -ne 0 ]; then
+        print_error "❌ Gagal menghapus direktori executor!"
+        exit 1
+    fi
+    print_success "✅ Direktori 'executor' telah dihapus.\n"
+else
+    print_info "✅ Direktori 'executor' tidak ditemukan, melanjutkan...\n"
+fi
+
 # Mengunduh dan memverifikasi file executor
 print_info "🔽 Mengunduh versi terbaru executor (v0.28.0)..."
 wget https://github.com/t3rn/executor-release/releases/download/v0.28.0/executor-linux-v0.28.0.tar.gz -O executor-linux-v0.28.0.tar.gz
@@ -86,7 +99,12 @@ export EXECUTOR_PROCESS_PENDING_ORDERS_FROM_API=false
 
 # Menjalankan executor di dalam sesi screen bernama 'airdropnode_t3rn'
 print_info "🚀 Menjalankan executor di dalam sesi screen bernama 'airdropnode_t3rn'...\n"
-screen -dmS airdropnode_t3rn ./executor && print_success "✅ Executor berhasil dijalankan di sesi screen 'airdropnode_t3rn'." || print_error "❌ Gagal menjalankan executor!"
+screen -dmS airdropnode_t3rn ./executor
+if [ $? -ne 0 ]; then
+    print_error "❌ Gagal menjalankan executor di sesi screen 'airdropnode_t3rn'!"
+    exit 1
+fi
+print_success "✅ Executor berhasil dijalankan di sesi screen 'airdropnode_t3rn'.\n"
 
 # Menampilkan informasi
 print_info "\n============================================="
@@ -94,3 +112,7 @@ print_success "🎉 Executor berjalan di latar belakang!"
 print_info "Gunakan perintah berikut untuk melihat log:\n"
 print_warning "    screen -r airdropnode_t3rn"
 print_info "============================================="
+
+# Masuk ke dalam sesi screen 'airdropnode_t3rn' secara otomatis
+print_info "📲 Masuk ke dalam sesi screen 'airdropnode_t3rn'..."
+screen -r airdropnode_t3rn
