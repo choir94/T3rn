@@ -1,108 +1,92 @@
 #!/bin/bash
 
-# Function to print the introduction
-print_intro() {
-  # Check if figlet is installed, and install if missing
-  if ! command -v figlet &> /dev/null; then
-    echo "Figlet not found. Installing figlet..."
-    sudo apt-get install figlet -y
-  fi
+# Warna ANSI untuk output
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-  echo -e "\033[94m"
-  figlet -f /usr/share/figlet/starwars.flf "T3Rn Executor"
-  echo -e "\033[0m"
-
-
-  echo "════════════════════════════════════════════════════════════"
-  echo "║     Update Informasi Node Join ke telegram:         ║"
-  echo "║     Telegram:                                            ║"
-  echo "║     - https://t.me/airdrop_node                     ║"
-  echo "╚════════════════════════════════════════════════════════════"
-
-  # Prompt for user confirmation
-  read -p "$(echo -e '\033[91mDo you want to proceed with T3Rn Airdrop? (Y/N): \033[0m')" answer  # Red color for the prompt
-  if [[ "$answer" != "Y" && "$answer" != "y" ]]; then
-    echo -e "\033[91mInstallation aborted.\033[0m"  # Red color for abort message
-    exit 1
-  fi
+# Fungsi untuk menampilkan pesan dengan warna
+function print_info {
+    echo -e "${CYAN}$1${NC}"
 }
 
-# Run the introduction function
-print_intro
+function print_success {
+    echo -e "${GREEN}$1${NC}"
+}
 
-# Continue with the original script
+function print_warning {
+    echo -e "${YELLOW}$1${NC}"
+}
 
-cd $HOME
-rm -rf executor
-sudo apt -q update
-sudo apt -qy upgrade
+function print_error {
+    echo -e "${RED}$1${NC}"
+}
 
-# Ensure the URL and the file version match
-EXECUTOR_URL="https://github.com/t3rn/executor-release/releases/download/v0.21.5/executor-linux-v0.21.5.tar.gz"
-EXECUTOR_FILE="executor-linux-v0.21.5.tar.gz"
+clear
 
-echo "Retrieving the Executor binary from $EXECUTOR_URL..."
-curl -L -o $EXECUTOR_FILE $EXECUTOR_URL
+print_info "============================================="
+print_info "       🚀 Script dari Airdrop Node"
+print_info "=============================================\n"
 
-if [ $? -ne 0 ]; then
-    echo "Unable to download the Executor binary."
+print_info "🔗 Join Telegram untuk informasi lebih lanjut:"
+print_warning "    https://t.me/airdrop_node\n"
+
+print_info "🔍 Mendeteksi versi terbaru dari GitHub..."
+
+# Mengambil URL rilis terbaru dari GitHub API
+LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep "browser_download_url.*executor-linux" | cut -d '"' -f 4)
+
+if [ -z "$LATEST_RELEASE_URL" ]; then
+    print_error "❌ Gagal mendeteksi rilis terbaru!"
     exit 1
+else
+    print_success "✅ Versi terbaru ditemukan: $LATEST_RELEASE_URL\n"
 fi
 
-echo "Unpacking the binary..."
-tar -xzvf $EXECUTOR_FILE
+# Mengunduh rilis terbaru
+print_info "🔽 Mengunduh executor versi terbaru..."
+wget "$LATEST_RELEASE_URL" -O executor-latest.tar.gz && print_success "✅ Unduhan selesai!\n" || { print_error "❌ Unduhan gagal!"; exit 1; }
 
-if [ $? -ne 0 ]; then
-    echo "Extraction failed. Please check the tarball format."
-    exit 1
-fi
+# Mengekstrak arsip
+print_info "📦 Mengekstrak arsip executor..."
+tar -xvzf executor-latest.tar.gz && print_success "✅ Ekstraksi selesai!\n" || { print_error "❌ Ekstraksi gagal!"; exit 1; }
 
-rm -rf $EXECUTOR_FILE
+# Navigasi ke direktori executor/bin
+print_info "📂 Navigasi ke direktori executor/bin..."
+cd executor/executor/bin || { print_error "❌ Direktori tidak ditemukan!"; exit 1; }
+print_success "✅ Berada di direktori executor/bin\n"
 
-# Ensure the directory exists before trying to cd
-if [ ! -d "executor/executor/bin" ]; then
-    echo "Directory executor/executor/bin not found after extraction."
-    exit 1
-fi
-
-cd executor/executor/bin
-
-echo "The binary has been successfully downloaded and unpacked."
-echo
-
-read -p "Please specify your desired Node Environment (e.g., testnet, mainnet): " NODE_ENV
-export NODE_ENV=${NODE_ENV:-testnet}
-echo "Node Environment is set to: $NODE_ENV"
-echo
-
+# Mengatur variabel lingkungan
+print_info "⚙️  Mengatur variabel lingkungan...\n"
+export NODE_ENV=testnet
 export LOG_LEVEL=debug
 export LOG_PRETTY=false
-echo "Log configuration set: LOG_LEVEL=$LOG_LEVEL, LOG_PRETTY=$LOG_PRETTY"
-echo
+export EXECUTOR_PROCESS_ORDERS=true
+export EXECUTOR_PROCESS_CLAIMS=true
+export EXECUTOR_MAX_L3_GAS_PRICE=50
+print_success "✅ Variabel lingkungan telah diatur.\n"
 
-read -s -p "Input your Metamask Private Key: " PRIVATE_KEY_LOCAL
-export PRIVATE_KEY_LOCAL=$PRIVATE_KEY_LOCAL
-echo -e "\nPrivate key has been configured."
-echo
+# Meminta input private key dari pengguna
+print_warning "🔑 Masukkan Private Key Anda dengan hati-hati!"
+read -sp "Private Key: " PRIVATE_KEY
+echo ""
+export PRIVATE_KEY_LOCAL=$PRIVATE_KEY
+print_success "✅ Private Key disimpan.\n"
 
-read -p "Specify the networks you wish to operate on (comma-separated, e.g., arbitrum-sepolia,base-sepolia): " ENABLED_NETWORKS
-export ENABLED_NETWORKS=${ENABLED_NETWORKS:-arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn}
-echo "Networks activated: $ENABLED_NETWORKS"
-echo
+export ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'
+export EXECUTOR_PROCESS_PENDING_ORDERS_FROM_API=false
 
-read -p "Would you like to configure custom RPC URLs? (y/n): " SET_RPC
-if [ "$SET_RPC" == "y" ]; then
-  for NETWORK in $(echo $ENABLED_NETWORKS | tr "," "\n"); do
-    read -p "Enter the RPC URLs for $NETWORK (comma-separated): " RPC_URLS
-    export EXECUTOR_${NETWORK^^}_RPC_URLS=$RPC_URLS
-    echo "Custom RPC URLs set for $NETWORK"
-  done
-else
-  echo "Custom RPC URL setup skipped. Default URLs will be used."
-fi
-echo
+# Menjalankan executor di dalam sesi screen
+print_info "🚀 Menjalankan executor di dalam sesi screen bernama 'airdropnode_t3rn'...\n"
+screen -dmS airdropnode_t3rn ./executor && print_success "✅ Executor berhasil dijalankan di sesi screen 'airdropnode_t3rn'." || print_error "❌ Gagal menjalankan executor!"
 
-echo "Launching the Executor..."
-./executor
-echo -e "${BOLD_PINK} Join airdrop node https://t.me/airdrop_node ${RESET_COLOR}"
+print_info "\n============================================="
+print_success "🎉 Executor berjalan di latar belakang!"
+print_info "Gunakan perintah berikut untuk melihat log:\n"
+print_warning "    screen -r airdropnode_t3rn"
+print_info "=============================================\n"
 
+print_info "🔗 Jangan lupa join Telegram Airdrop Node:"
+print_warning "    https://t.me/airdrop_node"
