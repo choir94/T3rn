@@ -38,6 +38,9 @@ print_info "🔍 Mendeteksi versi terbaru dari GitHub..."
 # Mengambil URL rilis terbaru dari GitHub API
 LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep "browser_download_url.*executor-linux" | cut -d '"' -f 4)
 
+# Membersihkan URL dari karakter ekstra jika ada
+LATEST_RELEASE_URL=$(echo $LATEST_RELEASE_URL | tr -d '\n')
+
 if [ -z "$LATEST_RELEASE_URL" ]; then
     print_error "❌ Gagal mendeteksi rilis terbaru!"
     exit 1
