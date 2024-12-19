@@ -1,4 +1,4 @@
-# Airdrop Node Executor Setup Script
+# Node T3rn Executor Setup Script
 
 This script automates the setup process for running the T3rn Node Executor on your machine. It will:
 
