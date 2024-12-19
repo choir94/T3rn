@@ -1,5 +1,8 @@
 #!/bin/bash
 
+curl -s https://raw.githubusercontent.com/choir94/Airdropguide/refs/heads/main/logo.sh | bash
+sleep 5
+
 # Warna ANSI untuk output
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -30,41 +33,16 @@ print_info "============================================="
 print_info "       🚀 Script dari Airdrop Node"
 print_info "=============================================\n"
 
-print_info "🔗 Join Telegram untuk informasi lebih lanjut:"
-print_warning "    https://t.me/airdrop_node\n"
+print_info "🔽 Mengunduh versi terbaru executor (v0.28.0)..."
+wget https://github.com/t3rn/executor-release/releases/download/v0.28.0/executor-linux-v0.28.0.tar.gz && print_success "✅ Unduhan selesai!\n" || print_error "❌ Unduhan gagal!"
 
-print_info "🔍 Mendeteksi versi terbaru dari GitHub..."
-
-# Mengambil URL rilis terbaru dari GitHub API
-LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep "browser_download_url.*executor-linux" | cut -d '"' -f 4)
-
-# Membersihkan URL dari karakter ekstra jika ada
-LATEST_RELEASE_URL=$(echo $LATEST_RELEASE_URL | tr -d '\n')
-
-if [ -z "$LATEST_RELEASE_URL" ]; then
-    print_error "❌ Gagal mendeteksi rilis terbaru!"
-    exit 1
-else
-    print_success "✅ Versi terbaru ditemukan: $LATEST_RELEASE_URL\n"
-fi
-
-# Nama file arsip unduhan
-FILE_NAME="executor-linux-v0.28.0.tar.gz"
-
-# Mengunduh rilis terbaru
-print_info "🔽 Mengunduh executor versi terbaru..."
-wget "$LATEST_RELEASE_URL" -O $FILE_NAME && print_success "✅ Unduhan selesai!\n" || { print_error "❌ Unduhan gagal!"; exit 1; }
-
-# Mengekstrak arsip
 print_info "📦 Mengekstrak arsip executor..."
-tar -xvzf $FILE_NAME && print_success "✅ Ekstraksi selesai!\n" || { print_error "❌ Ekstraksi gagal!"; exit 1; }
+tar -xvzf executor-linux-v0.28.0.tar.gz && print_success "✅ Ekstraksi selesai!\n" || print_error "❌ Ekstraksi gagal!"
 
-# Navigasi ke direktori executor/bin
-print_info "📂 Navigasi ke direktori executor/bin..."
+print_info "📂 Navigasi ke direktori executor bin..."
 cd executor/executor/bin || { print_error "❌ Direktori tidak ditemukan!"; exit 1; }
 print_success "✅ Berada di direktori executor/bin\n"
 
-# Mengatur variabel lingkungan
 print_info "⚙️  Mengatur variabel lingkungan...\n"
 export NODE_ENV=testnet
 export LOG_LEVEL=debug
@@ -84,7 +62,6 @@ print_success "✅ Private Key disimpan.\n"
 export ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'
 export EXECUTOR_PROCESS_PENDING_ORDERS_FROM_API=false
 
-# Menjalankan executor di dalam sesi screen
 print_info "🚀 Menjalankan executor di dalam sesi screen bernama 'airdropnode_t3rn'...\n"
 screen -dmS airdropnode_t3rn ./executor && print_success "✅ Executor berhasil dijalankan di sesi screen 'airdropnode_t3rn'." || print_error "❌ Gagal menjalankan executor!"
 
@@ -92,7 +69,4 @@ print_info "\n============================================="
 print_success "🎉 Executor berjalan di latar belakang!"
 print_info "Gunakan perintah berikut untuk melihat log:\n"
 print_warning "    screen -r airdropnode_t3rn"
-print_info "=============================================\n"
-
-print_info "🔗 Jangan lupa join Telegram Airdrop Node:"
-print_warning "    https://t.me/airdrop_node"
+print_info "============================================="
