@@ -3,116 +3,72 @@
 curl -s https://raw.githubusercontent.com/choir94/Airdropguide/refs/heads/main/logo.sh | bash
 sleep 5
 
-# Warna ANSI untuk output
+# Define colors for better output visibility
 GREEN='\033[0;32m'
-CYAN='\033[0;36m'
-RED='\033[0;31m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
-# Fungsi untuk menampilkan pesan dengan warna
-function print_info {
-    echo -e "${CYAN}$1${NC}"
+# Function for a cleaner header display
+function print_header {
+    echo -e "${CYAN}==============================================${NC}"
+    echo -e "${MAGENTA}           $1${NC}"
+    echo -e "${CYAN}==============================================${NC}"
+    echo ""
 }
 
-function print_success {
-    echo -e "${GREEN}$1${NC}"
-}
+# Step 1: Download the executor release
+print_header "Downloading Executor Release"
+echo -e "${GREEN}Please wait while the executor release is downloaded...${NC}"
+wget https://github.com/t3rn/executor-release/releases/download/v0.28.0/executor-linux-v0.28.0.tar.gz
+echo -e "${YELLOW}Download complete!${NC}\n"
 
-function print_warning {
-    echo -e "${YELLOW}$1${NC}"
-}
-
-function print_error {
-    echo -e "${RED}$1${NC}"
-}
-
-clear
-
-print_info "============================================="
-print_info "       🚀 Script dari Airdrop Node"
-print_info "=============================================\n"
-
-# Cek jika direktori executor ada dan hapus jika ada
-if [ -d "executor" ]; then
-    print_warning "🔴 Direktori 'executor' ditemukan, menghapusnya terlebih dahulu..."
-    rm -r executor
-    if [ $? -ne 0 ]; then
-        print_error "❌ Gagal menghapus direktori executor!"
-        exit 1
-    fi
-    print_success "✅ Direktori 'executor' telah dihapus.\n"
-else
-    print_info "✅ Direktori 'executor' tidak ditemukan, melanjutkan...\n"
-fi
-
-# Mengunduh dan memverifikasi file executor
-print_info "🔽 Mengunduh versi terbaru executor (v0.28.0)..."
-wget https://github.com/t3rn/executor-release/releases/download/v0.28.0/executor-linux-v0.28.0.tar.gz -O executor-linux-v0.28.0.tar.gz
-if [ $? -ne 0 ]; then
-    print_error "❌ Unduhan gagal!"
-    exit 1
-fi
-print_success "✅ Unduhan selesai!\n"
-
-# Memverifikasi file arsip
-print_info "📦 Memverifikasi file arsip..."
-gzip -t executor-linux-v0.28.0.tar.gz
-if [ $? -ne 0 ]; then
-    print_error "❌ File arsip rusak!"
-    exit 1
-fi
-
-# Mengekstrak arsip executor
-print_info "📦 Mengekstrak arsip executor..."
+# Step 2: Unzip the downloaded tarball
+print_header "Unzipping the Executor Tarball"
+echo -e "${GREEN}Unzipping executor-linux-v0.28.0.tar.gz...${NC}"
 tar -xvzf executor-linux-v0.28.0.tar.gz
-if [ $? -ne 0 ]; then
-    print_error "❌ Ekstraksi gagal!"
-    exit 1
-fi
+echo -e "${YELLOW}Unzip complete!${NC}\n"
 
-# Navigasi ke direktori executor
-print_info "📂 Navigasi ke direktori executor..."
-cd executor || { print_error "❌ Direktori executor tidak ditemukan!"; exit 1; }
-print_success "✅ Berada di direktori executor\n"
+# Step 3: Navigate to the executor/bin directory
+print_header "Navigating to Executor Directory"
+cd executor/executor/bin
+echo -e "${YELLOW}Successfully navigated to executor/bin!${NC}\n"
 
-# Mengatur variabel lingkungan
-print_info "⚙️  Mengatur variabel lingkungan...\n"
+# Step 4: Set environment variables
+print_header "Setting Up Environment Variables"
+echo -e "${GREEN}Configuring environment variables for execution...${NC}"
 export NODE_ENV=testnet
 export LOG_LEVEL=debug
 export LOG_PRETTY=false
 export EXECUTOR_PROCESS_ORDERS=true
 export EXECUTOR_PROCESS_CLAIMS=true
 export EXECUTOR_MAX_L3_GAS_PRICE=50
-print_success "✅ Variabel lingkungan telah diatur.\n"
+echo -e "${YELLOW}Environment variables set successfully!${NC}\n"
 
-# Meminta input private key dari pengguna
-print_warning "🔑 Masukkan Private Key Anda dengan hati-hati!"
-read -sp "Private Key: " PRIVATE_KEY
-echo ""
+# Step 5: Set private key and enabled networks
+print_header "Configuring Private Key and Networks"
+echo -e "${GREEN}Please enter your private key (your input will not be shown):${NC}"
+read -s PRIVATE_KEY
 export PRIVATE_KEY_LOCAL=$PRIVATE_KEY
-print_success "✅ Private Key disimpan.\n"
-
-# Mengatur jaringan yang diaktifkan
 export ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'
 export EXECUTOR_PROCESS_PENDING_ORDERS_FROM_API=false
+echo -e "${YELLOW}Private key and networks configured!${NC}\n"
 
-# Menjalankan executor di dalam sesi screen bernama 'airdropnode_t3rn'
-print_info "🚀 Menjalankan executor di dalam sesi screen bernama 'airdropnode_t3rn'...\n"
-screen -dmS airdropnode_t3rn ./executor
-if [ $? -ne 0 ]; then
-    print_error "❌ Gagal menjalankan executor di sesi screen 'airdropnode_t3rn'!"
-    exit 1
+# Step 6: Ensure the script runs inside a screen session
+SESSION_NAME="airdropnode_t3rn"
+print_header "Ensuring Executor Runs Inside a Screen Session"
+if ! screen -list | grep -q "$SESSION_NAME"; then
+    echo -e "${GREEN}No screen session found. Creating a new session named '$SESSION_NAME'...${NC}"
+    screen -dmS $SESSION_NAME
+    echo -e "${YELLOW}Screen session '$SESSION_NAME' created!${NC}\n"
+else
+    echo -e "${YELLOW}Screen session '$SESSION_NAME' already exists!${NC}\n"
 fi
-print_success "✅ Executor berhasil dijalankan di sesi screen 'airdropnode_t3rn'.\n"
 
-# Menampilkan informasi
-print_info "\n============================================="
-print_success "🎉 Executor berjalan di latar belakang!"
-print_info "Gunakan perintah berikut untuk melihat log:\n"
-print_warning "    screen -r airdropnode_t3rn"
-print_info "============================================="
-
-# Masuk ke dalam sesi screen 'airdropnode_t3rn' secara otomatis
-print_info "📲 Masuk ke dalam sesi screen 'airdropnode_t3rn'..."
-screen -r airdropnode_t3rn
+# Step 7: Run the executor inside the screen session
+print_header "Running Executor Inside Screen Session"
+echo -e "${BLUE}Starting executor in the screen session...${NC}"
+screen -S $SESSION_NAME -X stuff "./executor\n"
+echo -e "${YELLOW}Executor is now running inside the screen session '$SESSION_NAME'.${NC}\n"
