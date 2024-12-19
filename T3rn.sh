@@ -33,19 +33,6 @@ print_info "============================================="
 print_info "       🚀 Script dari Airdrop Node"
 print_info "=============================================\n"
 
-# Cek jika direktori executor ada dan hapus jika ada
-if [ -d "executor" ]; then
-    print_warning "🔴 Direktori 'executor' ditemukan, menghapusnya terlebih dahulu..."
-    rm -r executor
-    if [ $? -ne 0 ]; then
-        print_error "❌ Gagal menghapus direktori executor!"
-        exit 1
-    fi
-    print_success "✅ Direktori 'executor' telah dihapus.\n"
-else
-    print_info "✅ Direktori 'executor' tidak ditemukan, melanjutkan...\n"
-fi
-
 # Mengunduh dan memverifikasi file executor
 print_info "🔽 Mengunduh versi terbaru executor (v0.28.0)..."
 wget https://github.com/t3rn/executor-release/releases/download/v0.28.0/executor-linux-v0.28.0.tar.gz -O executor-linux-v0.28.0.tar.gz
