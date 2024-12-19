@@ -33,16 +33,37 @@ print_info "============================================="
 print_info "       🚀 Script dari Airdrop Node"
 print_info "=============================================\n"
 
+# Mengunduh dan memverifikasi file executor
 print_info "🔽 Mengunduh versi terbaru executor (v0.28.0)..."
-wget https://github.com/t3rn/executor-release/releases/download/v0.28.0/executor-linux-v0.28.0.tar.gz && print_success "✅ Unduhan selesai!\n" || print_error "❌ Unduhan gagal!"
+wget https://github.com/t3rn/executor-release/releases/download/v0.28.0/executor-linux-v0.28.0.tar.gz -O executor-linux-v0.28.0.tar.gz
+if [ $? -ne 0 ]; then
+    print_error "❌ Unduhan gagal!"
+    exit 1
+fi
+print_success "✅ Unduhan selesai!\n"
 
+# Memverifikasi file arsip
+print_info "📦 Memverifikasi file arsip..."
+gzip -t executor-linux-v0.28.0.tar.gz
+if [ $? -ne 0 ]; then
+    print_error "❌ File arsip rusak!"
+    exit 1
+fi
+
+# Mengekstrak arsip executor
 print_info "📦 Mengekstrak arsip executor..."
-tar -xvzf executor-linux-v0.28.0.tar.gz && print_success "✅ Ekstraksi selesai!\n" || print_error "❌ Ekstraksi gagal!"
+tar -xvzf executor-linux-v0.28.0.tar.gz
+if [ $? -ne 0 ]; then
+    print_error "❌ Ekstraksi gagal!"
+    exit 1
+fi
 
-print_info "📂 Navigasi ke direktori executor bin..."
-cd executor/executor/bin || { print_error "❌ Direktori tidak ditemukan!"; exit 1; }
-print_success "✅ Berada di direktori executor/bin\n"
+# Navigasi ke direktori executor
+print_info "📂 Navigasi ke direktori executor..."
+cd executor || { print_error "❌ Direktori executor tidak ditemukan!"; exit 1; }
+print_success "✅ Berada di direktori executor\n"
 
+# Mengatur variabel lingkungan
 print_info "⚙️  Mengatur variabel lingkungan...\n"
 export NODE_ENV=testnet
 export LOG_LEVEL=debug
@@ -59,12 +80,15 @@ echo ""
 export PRIVATE_KEY_LOCAL=$PRIVATE_KEY
 print_success "✅ Private Key disimpan.\n"
 
+# Mengatur jaringan yang diaktifkan
 export ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'
 export EXECUTOR_PROCESS_PENDING_ORDERS_FROM_API=false
 
+# Menjalankan executor di dalam sesi screen bernama 'airdropnode_t3rn'
 print_info "🚀 Menjalankan executor di dalam sesi screen bernama 'airdropnode_t3rn'...\n"
 screen -dmS airdropnode_t3rn ./executor && print_success "✅ Executor berhasil dijalankan di sesi screen 'airdropnode_t3rn'." || print_error "❌ Gagal menjalankan executor!"
 
+# Menampilkan informasi
 print_info "\n============================================="
 print_success "🎉 Executor berjalan di latar belakang!"
 print_info "Gunakan perintah berikut untuk melihat log:\n"
