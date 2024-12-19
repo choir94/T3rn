@@ -45,13 +45,16 @@ else
     print_success "✅ Versi terbaru ditemukan: $LATEST_RELEASE_URL\n"
 fi
 
+# Nama file arsip unduhan
+FILE_NAME="executor-linux-v0.28.0.tar.gz"
+
 # Mengunduh rilis terbaru
 print_info "🔽 Mengunduh executor versi terbaru..."
-wget "$LATEST_RELEASE_URL" -O executor-latest.tar.gz && print_success "✅ Unduhan selesai!\n" || { print_error "❌ Unduhan gagal!"; exit 1; }
+wget "$LATEST_RELEASE_URL" -O $FILE_NAME && print_success "✅ Unduhan selesai!\n" || { print_error "❌ Unduhan gagal!"; exit 1; }
 
 # Mengekstrak arsip
 print_info "📦 Mengekstrak arsip executor..."
-tar -xvzf executor-latest.tar.gz && print_success "✅ Ekstraksi selesai!\n" || { print_error "❌ Ekstraksi gagal!"; exit 1; }
+tar -xvzf $FILE_NAME && print_success "✅ Ekstraksi selesai!\n" || { print_error "❌ Ekstraksi gagal!"; exit 1; }
 
 # Navigasi ke direktori executor/bin
 print_info "📂 Navigasi ke direktori executor/bin..."
