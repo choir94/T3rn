@@ -19,21 +19,41 @@ function print_header {
     echo ""
 }
 
-# Step 1: Download the executor release
-print_header "Downloading Executor Release"
-echo -e "${GREEN}Please wait while the executor release is downloaded...${NC}"
-wget https://github.com/t3rn/executor-release/releases/download/v0.28.0/executor-linux-v0.28.0.tar.gz
+# Step 1: Get the latest version and download the executor release
+print_header "Downloading Latest Executor Release"
+echo -e "${GREEN}Fetching the latest version of the executor release...${NC}"
+LATEST_VERSION=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
+
+if [ -z "$LATEST_VERSION" ]; then
+    echo -e "${RED}Error: Failed to fetch the latest release version.${NC}"
+    exit 1
+fi
+
+DOWNLOAD_URL="https://github.com/t3rn/executor-release/releases/download/$LATEST_VERSION/executor-linux-$LATEST_VERSION.tar.gz"
+echo -e "${GREEN}Latest version: ${LATEST_VERSION}${NC}"
+echo -e "${GREEN}Downloading from: $DOWNLOAD_URL${NC}"
+
+if ! wget -q "$DOWNLOAD_URL"; then
+    echo -e "${RED}Error: Failed to download the latest release.${NC}"
+    exit 1
+fi
 echo -e "${YELLOW}Download complete!${NC}\n"
 
 # Step 2: Unzip the downloaded tarball
 print_header "Unzipping the Executor Tarball"
-echo -e "${GREEN}Unzipping executor-linux-v0.28.0.tar.gz...${NC}"
-tar -xvzf executor-linux-v0.28.0.tar.gz
+echo -e "${GREEN}Unzipping executor-linux-${LATEST_VERSION}.tar.gz...${NC}"
+if ! tar -xvzf "executor-linux-${LATEST_VERSION}.tar.gz"; then
+    echo -e "${RED}Error: Failed to unzip the tarball.${NC}"
+    exit 1
+fi
+
+# Clean up tarball
+rm -f "executor-linux-${LATEST_VERSION}.tar.gz"
 echo -e "${YELLOW}Unzip complete!${NC}\n"
 
 # Step 3: Navigate to the executor/bin directory
 print_header "Navigating to Executor Directory"
-cd executor/executor/bin
+cd executor/executor/bin || { echo -e "${RED}Error: Directory not found.${NC}"; exit 1; }
 echo -e "${YELLOW}Successfully navigated to executor/bin!${NC}\n"
 
 # Step 4: Set environment variables
