@@ -1,94 +1,66 @@
 #!/bin/bash
 
-curl -s https://raw.githubusercontent.com/choir94/Airdropguide/refs/heads/main/logo.sh | bash
-sleep 5
+echo "=============================================="
+echo "   🛠  t3rn Executor By Airdrop Node 🚀   "
+echo "=============================================="
+echo ""
 
-# Define colors for better output visibility
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-NC='\033[0m' # No Color
+# Meminta user memasukkan private key secara aman
+read -sp "🔑 Masukkan Private Key Metamask Anda: " PRIVATE_KEY
+echo ""
+echo "✅ Private Key diterima!"
+echo ""
 
-# Function for a cleaner header display
-function print_header {
-    echo -e "${CYAN}==============================================${NC}"
-    echo -e "${MAGENTA}           $1${NC}"
-    echo -e "${CYAN}==============================================${NC}"
-    echo ""
-}
+# Perbarui sistem dan instal dependensi
+echo "📦 Mengupdate sistem dan menginstal dependensi..."
+sudo apt update && sudo apt install -y build-essential git screen
+echo "✅ Instalasi dependensi selesai!"
+echo ""
 
-# Step 1: Get the latest version and download the executor release
-print_header "Downloading Latest Executor Release"
-echo -e "${GREEN}Fetching the latest version of the executor release...${NC}"
-LATEST_VERSION=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
+# Membuat sesi screen
+echo "🖥  Membuat sesi screen bernama 't3rn'..."
+screen -dmS t3rn bash -c '
 
-if [ -z "$LATEST_VERSION" ]; then
-    echo -e "${RED}Error: Failed to fetch the latest release version.${NC}"
-    exit 1
-fi
+# Download dan ekstrak executor
+echo "📥 Mengunduh t3rn Executor..."
+wget https://github.com/t3rn/executor-release/releases/download/v0.47.0/executor-linux-v0.47.0.tar.gz
+tar -xvzf executor-linux-v0.47.0.tar.gz
+cd executor/executor/bin
 
-DOWNLOAD_URL="https://github.com/t3rn/executor-release/releases/download/$LATEST_VERSION/executor-linux-$LATEST_VERSION.tar.gz"
-echo -e "${GREEN}Latest version: ${LATEST_VERSION}${NC}"
-echo -e "${GREEN}Downloading from: $DOWNLOAD_URL${NC}"
+# Menampilkan pesan konfigurasi
+echo "⚙️  Mengatur konfigurasi node..."
 
-if ! wget -q "$DOWNLOAD_URL"; then
-    echo -e "${RED}Error: Failed to download the latest release.${NC}"
-    exit 1
-fi
-echo -e "${YELLOW}Download complete!${NC}\n"
-
-# Step 2: Unzip the downloaded tarball
-print_header "Unzipping the Executor Tarball"
-echo -e "${GREEN}Unzipping executor-linux-${LATEST_VERSION}.tar.gz...${NC}"
-if ! tar -xvzf "executor-linux-${LATEST_VERSION}.tar.gz"; then
-    echo -e "${RED}Error: Failed to unzip the tarball.${NC}"
-    exit 1
-fi
-
-# Clean up tarball
-rm -f "executor-linux-${LATEST_VERSION}.tar.gz"
-echo -e "${YELLOW}Unzip complete!${NC}\n"
-
-# Step 3: Navigate to the executor/bin directory
-print_header "Navigating to Executor Directory"
-cd executor/executor/bin || { echo -e "${RED}Error: Directory not found.${NC}"; exit 1; }
-echo -e "${YELLOW}Successfully navigated to executor/bin!${NC}\n"
-
-# Step 4: Set environment variables
-print_header "Setting Up Environment Variables"
-echo -e "${GREEN}Configuring environment variables for execution...${NC}"
+# Set variabel lingkungan
 export NODE_ENV=testnet
 export LOG_LEVEL=debug
 export LOG_PRETTY=false
+
 export EXECUTOR_PROCESS_ORDERS=true
 export EXECUTOR_PROCESS_CLAIMS=true
-export EXECUTOR_MAX_L3_GAS_PRICE=50
-echo -e "${YELLOW}Environment variables set successfully!${NC}\n"
 
-# Step 5: Set private key and enabled networks
-print_header "Configuring Private Key and Networks"
-echo -e "${GREEN}Please enter your private key (your input will not be shown):${NC}"
-read -s PRIVATE_KEY
-export PRIVATE_KEY_LOCAL=$PRIVATE_KEY
-export ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'
+# Gunakan Private Key dari input pengguna
+export PRIVATE_KEY_LOCAL="'$PRIVATE_KEY'"
+
+export ENABLED_NETWORKS="base-sepolia,optimism-sepolia,l1rn,blast-sepolia,arb-sepolia"
 export EXECUTOR_PROCESS_PENDING_ORDERS_FROM_API=false
-echo -e "${YELLOW}Private key and networks configured!${NC}\n"
+export EXECUTOR_PROCESS_ORDERS_API_ENABLED=false
+export EXECUTOR_ENABLE_BATCH_BIDING=true
+export EXECUTOR_PROCESS_BIDS_ENABLED=true
+export EXECUTOR_MAX_L3_GAS_PRICE=5000
 
-# Step 6: Ensure the script runs inside a screen session
-SESSION_NAME="airdropnode_t3rn"
-print_header "Ensuring Executor Runs Inside a Screen Session"
-if ! screen -list | grep -q "$SESSION_NAME"; then
-    echo -e "${GREEN}No screen session found. Creating a new session named '$SESSION_NAME'...${NC}"
-    screen -dmS $SESSION_NAME
-    echo -e "${YELLOW}Screen session '$SESSION_NAME' created!${NC}\n"
-else
-    echo -e "${YELLOW}Screen session '$SESSION_NAME' already exists!${NC}\n"
-fi
+export RPC_ENDPOINTS_bssp="https://base-sepolia-rpc.publicnode.com/"
+export RPC_ENDPOINTS_opsp="https://sepolia.optimism.io/"
+export API_ENDPOINTS_L1RN="https://brn.rpc.caldera.xyz/"
+export RPC_ENDPOINTS_blast="https://sepolia.blast.io/"
+export RPC_ENDPOINTS_arb="https://arbitrum-sepolia-rpc.publicnode.com/"
 
-# Step 7: Run the executor inside the screen session
-print_header "Running Executor Inside Screen Session"
-echo -e "${BLUE}Starting executor in the screen session...${NC}"
-screen -S $SESSION_NAME -X stuff "./executor\n"
-echo -e "${YELLOW}Executor is now running inside the screen session '$SESSION_NAME'.${NC}\n"
+# Menjalankan executor
+echo "🚀 Menjalankan t3rn Executor..."
+./executor
+'
+
+echo ""
+echo "🎉 t3rn Executor Node telah berjalan!"
+echo "🛠  Gunakan 'screen -r t3rn' untuk melihat log"
+echo "📢 Gabung ke Telegram Airdrop Node untuk update terbaru!"
+echo ""
