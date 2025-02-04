@@ -25,7 +25,7 @@ Bridge URL: https://bridge.t1rn.io
    Log Monitoring: After the executor is running, you can monitor the logs using the following command:
 
    ```bash
-   screen -r airdropnode_t3rn
+   screen -r tern
    ```
 
    -- DONE
